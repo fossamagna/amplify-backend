@@ -6,6 +6,7 @@ on:
       - main
       - hotfix
       - feature/**
+      - snapshot/iac-hosting
   schedule:
     # Run every two hours. A single run takes about 40min so we should
     # get about 10 runs per day. If at least one of them succeeds, we are happy.
@@ -75,6 +76,10 @@ on:
         required: false
         type: string
         default: '["22", "24", "26"]'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # Health checks can run on un-released code. Often work in progress.

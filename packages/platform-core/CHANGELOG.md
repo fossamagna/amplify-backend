@@ -1,5 +1,43 @@
 # @aws-amplify/platform-core
 
+## 1.12.1
+
+### Patch Changes
+
+- 3231b13: Security hardening: reject prototype-polluting keys in the local configuration controller path walk (CWE-1321). `LocalConfigurationController.get()` and `set()` now throw an `AmplifyUserError` when a dotted path contains the reserved segments `__proto__`, `constructor`, or `prototype`, instead of walking into `Object.prototype`. Previously `set("__proto__.isAdmin", true)` polluted `Object.prototype` so that `({}).isAdmin === true`.
+
+## 1.12.0
+
+### Minor Changes
+
+- 02be24d: feat: standalone SSR hosting & CI/CD for Gen 2
+  - **`defineHosting`** (`@aws-amplify/hosting`) — framework-agnostic SSR/SSG (Next.js, Nuxt/Nitro, Astro, SPA) on CloudFront + Lambda via an OpenNext build (KVS edge routing, ISR cache seeding, image optimization, multi-domain/WAF, cache/headers, skew protection), built on `@aws-blocks/hosting` 0.3.0.
+  - **`definePipeline`** (`@aws-amplify/hosting/pipeline`) — a self-mutating CodePipeline (one per branch) with a two-phase backend-then-hosting deploy and typed per-stage config, built on `@aws-blocks/pipeline` 0.2.1.
+  - **Self-managed values** — `secret()` (AWS Secrets Manager) / `config()` (SSM Parameter Store) in `defineHosting`'s `environment`, read at runtime with `getSecret`/`getConfig` from the CDK-free `@aws-amplify/hosting/runtime` entry; `byoSecret()`/`byoConfig()` reference existing entries with no user CDK. Only the store locator is injected into compute — never the value; namespaces default to `/amplify/hosting/<project>/{secrets,config}`.
+  - **CLI** — `ampx deploy` gains `--backend`/`--frontend` and defaults `--identifier` to the sanitized `package.json` name; new `ampx secret` / `ampx config` (`set`/`get`/`list`/`remove`) manage self-managed hosting values.
+
+### Patch Changes
+
+- a0421b3: migrate deprecated CfnResource#addDependency usage to addResourceDependency
+- Updated dependencies [02be24d]
+  - @aws-amplify/plugin-types@1.13.0
+
+## 1.11.2
+
+### Patch Changes
+
+- 9db547a: chore: raise aws-cdk-lib floor to ^2.254.0
+
+  Bump the `aws-cdk-lib` peer dependency floor from `^2.234.1` to `^2.254.0`
+  across all packages. This picks up the upstream fix for a crash during asset
+  fingerprinting on Windows with newer Node.js releases, where `fs.openSync` was
+  called with `O_SYNC | O_DSYNC` and failed with `EINVAL`. The fix shipped in
+  `aws-cdk-lib` 2.254.0.
+
+- Updated dependencies [9db547a]
+- Updated dependencies [4ee0260]
+  - @aws-amplify/plugin-types@1.12.3
+
 ## 1.11.1
 
 ### Patch Changes

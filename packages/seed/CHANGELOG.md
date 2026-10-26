@@ -1,5 +1,30 @@
 # @aws-amplify/seed
 
+## 1.1.5
+
+### Patch Changes
+
+- 08e0d49: Loosen `aws-amplify` from an exact version pin (`6.14.4`) back to a caret range (`^6.14.4`) so npm can deduplicate it against the consuming app's `aws-amplify` version. The exact pin (introduced in #3144, shipped in 1.1.3) forced a second, nested `aws-amplify` copy whenever the app used any other 6.x version, producing an unconfigured Amplify singleton and `Auth UserPool not configured` / `SeedingFailedError` during `ampx sandbox seed`.
+- Updated dependencies [3231b13]
+  - @aws-amplify/platform-core@1.12.1
+
+## 1.1.4
+
+### Patch Changes
+
+- 02be24d: feat: standalone SSR hosting & CI/CD for Gen 2
+  - **`defineHosting`** (`@aws-amplify/hosting`) — framework-agnostic SSR/SSG (Next.js, Nuxt/Nitro, Astro, SPA) on CloudFront + Lambda via an OpenNext build (KVS edge routing, ISR cache seeding, image optimization, multi-domain/WAF, cache/headers, skew protection), built on `@aws-blocks/hosting` 0.3.0.
+  - **`definePipeline`** (`@aws-amplify/hosting/pipeline`) — a self-mutating CodePipeline (one per branch) with a two-phase backend-then-hosting deploy and typed per-stage config, built on `@aws-blocks/pipeline` 0.2.1.
+  - **Self-managed values** — `secret()` (AWS Secrets Manager) / `config()` (SSM Parameter Store) in `defineHosting`'s `environment`, read at runtime with `getSecret`/`getConfig` from the CDK-free `@aws-amplify/hosting/runtime` entry; `byoSecret()`/`byoConfig()` reference existing entries with no user CDK. Only the store locator is injected into compute — never the value; namespaces default to `/amplify/hosting/<project>/{secrets,config}`.
+  - **CLI** — `ampx deploy` gains `--backend`/`--frontend` and defaults `--identifier` to the sanitized `package.json` name; new `ampx secret` / `ampx config` (`set`/`get`/`list`/`remove`) manage self-managed hosting values.
+
+- Updated dependencies [02be24d]
+- Updated dependencies [a0421b3]
+  - @aws-amplify/platform-core@1.12.0
+  - @aws-amplify/cli-core@2.2.7
+  - @aws-amplify/client-config@1.11.1
+  - @aws-amplify/plugin-types@1.13.0
+
 ## 1.1.3
 
 ### Patch Changes

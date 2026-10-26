@@ -1,5 +1,84 @@
 # @aws-amplify/backend-deployer
 
+## 2.3.2
+
+### Patch Changes
+
+- 003c4a4: Keep the sandbox hotswap fallback on CloudFormation standard mode with rollback enabled.
+
+  Bump `@aws-cdk/toolkit-lib` to `^1.40.0` and set `rollback: true` on sandbox
+  deploys. A prior toolkit-lib version sent the sandbox hotswap fallback deploy to
+  CloudFormation in express mode with rollback disabled, so a transient resource
+  failure left the sandbox stack in `UPDATE_FAILED` with no automatic recovery.
+
+## 2.3.1
+
+### Patch Changes
+
+- 3550683: fix: decouple the deployer's internal type-check from the project's TypeScript version
+
+  The deployer type-checks the backend definition using the TypeScript
+  JavaScript Compiler API. Previously `typescript` was a peer dependency, so
+  that API was resolved from the project's installed `typescript`. TypeScript 7.0
+  (the Go rewrite) removed the JavaScript Compiler API, so `deploy` and
+  `ampx sandbox` crashed with `Cannot read properties of undefined (reading
+'readFile')`. `typescript` is now a direct dependency of the deployer so the
+  type-check runs against a bundled 5.x compiler regardless of the project's
+  pin, and a clear error is thrown if the resolved compiler still lacks the
+  JavaScript Compiler API.
+
+- ef46c66: Map the `@aws-cdk/toolkit-lib` `countAssemblyResults` crash (`TypeError: Cannot convert undefined or null to object` when a synthesized stack has no metadata) to a fault instead of a misleading backend `SyntaxError`.
+- Updated dependencies [3231b13]
+  - @aws-amplify/platform-core@1.12.1
+
+## 2.3.0
+
+### Minor Changes
+
+- 02be24d: feat: standalone SSR hosting & CI/CD for Gen 2
+  - **`defineHosting`** (`@aws-amplify/hosting`) — framework-agnostic SSR/SSG (Next.js, Nuxt/Nitro, Astro, SPA) on CloudFront + Lambda via an OpenNext build (KVS edge routing, ISR cache seeding, image optimization, multi-domain/WAF, cache/headers, skew protection), built on `@aws-blocks/hosting` 0.3.0.
+  - **`definePipeline`** (`@aws-amplify/hosting/pipeline`) — a self-mutating CodePipeline (one per branch) with a two-phase backend-then-hosting deploy and typed per-stage config, built on `@aws-blocks/pipeline` 0.2.1.
+  - **Self-managed values** — `secret()` (AWS Secrets Manager) / `config()` (SSM Parameter Store) in `defineHosting`'s `environment`, read at runtime with `getSecret`/`getConfig` from the CDK-free `@aws-amplify/hosting/runtime` entry; `byoSecret()`/`byoConfig()` reference existing entries with no user CDK. Only the store locator is injected into compute — never the value; namespaces default to `/amplify/hosting/<project>/{secrets,config}`.
+  - **CLI** — `ampx deploy` gains `--backend`/`--frontend` and defaults `--identifier` to the sanitized `package.json` name; new `ampx secret` / `ampx config` (`set`/`get`/`list`/`remove`) manage self-managed hosting values.
+
+### Patch Changes
+
+- Updated dependencies [02be24d]
+- Updated dependencies [a0421b3]
+  - @aws-amplify/platform-core@1.12.0
+  - @aws-amplify/plugin-types@1.13.0
+
+## 2.2.1
+
+### Patch Changes
+
+- 9db547a: chore: raise aws-cdk-lib floor to ^2.254.0
+
+  Bump the `aws-cdk-lib` peer dependency floor from `^2.234.1` to `^2.254.0`
+  across all packages. This picks up the upstream fix for a crash during asset
+  fingerprinting on Windows with newer Node.js releases, where `fs.openSync` was
+  called with `O_SYNC | O_DSYNC` and failed with `EINVAL`. The fix shipped in
+  `aws-cdk-lib` 2.254.0.
+
+- 4ee0260: fix: bump `@aws-cdk/toolkit-lib` to 1.40.0 so hotswap fallback deployments stay in STANDARD mode
+
+  `@aws-cdk/toolkit-lib` 1.32.0 forced `express: true` whenever a `hotswap`
+  deployment fell back to a full deployment, so every `ampx sandbox` deploy that
+  could not be hotswapped was sent to CloudFormation with
+  `DeploymentConfig.Mode=EXPRESS` even though `--express` was not passed. Express
+  mode is opt-in, and the override also relaxed the rollback and replacement
+  checks of the fallback deployment.
+
+  The override was reverted upstream in `@aws-cdk/toolkit-lib` 1.38.1
+  (aws/aws-cdk-cli#1801). Bumping to 1.40.0 restores the intended behavior:
+  `--express` is honored when passed, and a hotswap fallback deploys in STANDARD
+  mode otherwise.
+
+- Updated dependencies [9db547a]
+- Updated dependencies [4ee0260]
+  - @aws-amplify/platform-core@1.11.2
+  - @aws-amplify/plugin-types@1.12.3
+
 ## 2.2.0
 
 ### Minor Changes
